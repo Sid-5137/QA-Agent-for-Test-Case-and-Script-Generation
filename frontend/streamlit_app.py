@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 import requests
 import streamlit as st
 
-API = "http://localhost:8000"
+API = os.getenv("API_ENDPOINT", "http://localhost:8000")
 
 st.set_page_config(
     page_title="QA Agent",
