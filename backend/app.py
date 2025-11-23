@@ -243,7 +243,7 @@ def run_selenium(req: RunSeleniumRequest):
         if _project_root not in sys.path:
             sys.path.insert(0, _project_root)
         from backend.utils.selenium_recorder import RecordingManager
-        RecordingManager.configure(r"{run_dir_literal}", run_id=r"{run_id_literal}")
+        RecordingManager.configure(r"{run_dir_literal}")
         import os
         os.environ.setdefault("CHECKOUT_HTML_PATH", r"{html_path_literal}")
         """

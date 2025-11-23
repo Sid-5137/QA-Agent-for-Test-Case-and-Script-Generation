@@ -37,23 +37,43 @@ class TestGenerationAgent:
 
         normalized = []
         for idx, case in enumerate(data, 1):
+            if isinstance(case, str):
+                parsed = {}
+                for line in case.splitlines():
+                    if ":" not in line:
+                        continue
+                    key, value = line.split(":", 1)
+                    parsed[key.strip()] = value.strip()
+                case = parsed
+            if not isinstance(case, dict):
+                continue
+
             tid = case.get("Test_ID") or case.get("id") or f"TC-{idx:03d}"
             grounded = case.get("Grounded_In", [])
             if isinstance(grounded, str):
                 grounded = [grounded]
+            feature = self._pick_field(case, ["Feature", "feature", "Title", "Test_Title"]) or ""
+            scenario = self._pick_field(
+                case,
+                ["Test_Scenario", "Scenario", "Steps", "Description", "Flow"],
+            ) or ""
+            expected_result = self._pick_field(
+                case,
+                ["Expected_Result", "Expected", "Outcome", "Result"],
+            ) or ""
             normalized.append(
                 {
                     "id": tid,
-                    "feature": case.get("Feature", ""),
-                    "scenario": case.get("Test_Scenario", ""),
-                    "expected_result": case.get("Expected_Result", ""),
+                    "feature": feature,
+                    "scenario": scenario,
+                    "expected_result": expected_result,
                     "grounded_in": grounded,
                     "raw_block": dedent(
                         f"""
                         Test_ID: {tid}
-                        Feature: {case.get('Feature', '')}
-                        Test_Scenario: {case.get('Test_Scenario', '')}
-                        Expected_Result: {case.get('Expected_Result', '')}
+                        Feature: {feature}
+                        Test_Scenario: {scenario}
+                        Expected_Result: {expected_result}
                         Grounded_In: {case.get('Grounded_In', [])}
                         """
                     ).strip(),
@@ -61,6 +81,14 @@ class TestGenerationAgent:
             )
 
         return normalized
+
+    @staticmethod
+    def _pick_field(case: dict, keys: list[str]):
+        for key in keys:
+            value = case.get(key)
+            if value:
+                return value
+        return ""
 
     def generate(self, docs_path: str, query: str, k: int = 5):
         vector_path = os.path.join(docs_path, "vector_db")
