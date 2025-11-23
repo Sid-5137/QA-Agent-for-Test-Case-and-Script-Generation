@@ -1,0 +1,39 @@
+[project]
+name = "qa-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "bs4>=0.0.2",
+    "chromadb>=1.3.5",
+    "common>=0.1.2",
+    "dotenv>=0.9.9",
+    "einops>=0.8.1",
+    "fastapi>=0.121.2",
+    "flask>=3.1.2",
+    "jina>=3.8.2",
+    "jq>=1.10.0",
+    "langchain>=1.0.7",
+    "langchain-chroma>=1.0.0",
+    "langchain-community>=0.4.1",
+    "langchain-groq>=1.0.1",
+    "langchain-huggingface>=1.0.1",
+    "langchain-openai>=1.0.3",
+    "langgraph>=1.0.3",
+    "markdown>=3.10",
+    "pydantic>=2.12.4",
+    "pypdf>=6.3.0",
+    "requests>=2.32.5",
+    "selenium>=4.38.0",
+    "sentence-transformers>=5.1.2",
+    "streamlit>=1.51.0",
+    "transformers>=4.57.1",
+    "unstructured>=0.18.20",
+    "uvicorn[standard]>=0.38.0",
+    "pillow>=10.1.0",
+    "imageio>=2.34.1",
+    "imageio-ffmpeg>=0.4.9",
+    "numpy>=1.26.4",
+    "matplotlib>=3.10.7",
+]

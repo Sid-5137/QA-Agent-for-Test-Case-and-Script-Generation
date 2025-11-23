@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.idea/
+.vscode/
+.eggs/
+
+# Virtual environments
+.venv
+
+# package related
+uv.lock
+.env
+
+# Folders
+assets/
+uploads/
+vector_db/
