@@ -539,7 +539,7 @@ all_files = st.file_uploader(
     label_visibility="collapsed"
 )
 
-if st.button("Process All Files", type="primary", use_container_width=True):
+if st.button("Process All Files", type="primary", width='stretch'):
     html_src = None
     html_bytes = None
     files = []
@@ -600,7 +600,7 @@ if "docs_path" in st.session_state:
     st.markdown('<div class="step-header">Step 2: Build Knowledge Base</div>', unsafe_allow_html=True)
     c1, c2 = st.columns([1.2, 4])
     with c1:
-        if st.button("🔨 Build KB", type="secondary", use_container_width=True):
+        if st.button("🔨 Build KB", type="secondary", width='stretch'):
             with st.spinner("🔄 Indexing documents..."):
                 r = requests.post(f"{API}/build_kb", json={"docs_path": st.session_state.docs_path})
             if r.ok:
@@ -626,7 +626,7 @@ if st.session_state.get("kb_info"):
     )
     c1, c2 = st.columns([1.2, 4])
     with c1:
-        if st.button("⚡ Generate Tests", type="primary", use_container_width=True):
+        if st.button("⚡ Generate Tests", type="primary", width='stretch'):
             with st.spinner("🤖 Generating test scenarios..."):
                 r = requests.post(f"{API}/generate_tests", json={
                     "docs_path": st.session_state.docs_path,
@@ -710,7 +710,7 @@ if test_cases:
 
     can_run = bool(selected and checkout_html)
 
-    if st.button("🔧 Generate Script", type="primary", use_container_width=True, disabled=not can_run):
+    if st.button("🔧 Generate Script", type="primary", width='stretch', disabled=not can_run):
         with st.spinner("🤖 Generating Selenium code..."):
             selected_cases = [tc for tc in test_cases if tc['id'] in selected]
             r = requests.post(f"{API}/generate_selenium", json={
@@ -744,7 +744,7 @@ if test_cases:
                 "selenium_tests.py",
                 "text/x-python",
                 key="download_latest_script",
-                use_container_width=True
+                width='stretch'
             )
         with col2:
             st.markdown("[Continue to Step 5 →](#step5-anchor)", unsafe_allow_html=True)
@@ -759,7 +759,7 @@ if latest_script and checkout_html:
     
     with action_col:
         st.markdown("**Action**")
-        if st.button("▶ Run Full Pipeline", type="primary", use_container_width=True):
+        if st.button("▶ Run Full Pipeline", type="primary", width='stretch'):
             if not docs_path:
                 st.error("Upload files again to rehydrate the session.")
             else:
@@ -856,7 +856,7 @@ if latest_script and checkout_html:
                     file_name=f"{run_id}.mp4",
                     mime="video/mp4",
                     key="download_playback_mp4",
-                    use_container_width=True
+                    width='stretch'
                 )
             elif gif_base64:
                 st.markdown(
@@ -870,7 +870,7 @@ if latest_script and checkout_html:
                     file_name=f"{run_id}.gif",
                     mime="image/gif",
                     key="download_playback_gif",
-                    use_container_width=True
+                    width='stretch'
                 )
             else:
                 st.info("No recorded frames. Verify Chrome is installed and accessible.")
@@ -915,7 +915,7 @@ if latest_script and checkout_html:
                 st.markdown("**Locator Coverage**")
                 st.dataframe(
                     locator_rows,
-                    use_container_width=True,
+                    width='stretch',
                     hide_index=True,
                     column_config={
                         "by": "Strategy",
@@ -936,7 +936,7 @@ if latest_script and checkout_html:
                         "Status": "OK" if c["status"] == "ok" else "Warning",
                         "Message": c["message"]
                     })
-                st.dataframe(check_table, use_container_width=True, hide_index=True)
+                st.dataframe(check_table, width='stretch', hide_index=True)
 
             st.caption("Validation checks selector syntax & HTML element existence without running a browser.")
         else:
