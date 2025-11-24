@@ -10,442 +10,627 @@ API = os.getenv("API_ENDPOINT", "http://localhost:8000")
 
 st.set_page_config(
     page_title="QA Agent",
-    page_icon="🤖",
+    page_icon="▪",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# ========================= MODERN GLASSMORPHISM DARK THEME =========================
+# ========================= REFINED MINIMAL PROFESSIONAL THEME =========================
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
     }
     
-    /* Global Dark Theme with Glassmorphism */
+    /* Base Theme */
     .stApp {
-        background: linear-gradient(135deg, #0f0f23 0%, #1a0a3e 50%, #0f0f23 100%);
-        color: #e2e8f0;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: #0a0e1a;
+        color: #f0f3f7;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-weight: 400;
     }
     
     .main > div {
-        padding: 2rem 3rem !important;
-        background: transparent;
+        padding: 3rem 4rem !important;
+        max-width: 1600px;
+        margin: 0 auto;
     }
     
-    /* Header - Animated Gradient */
-    .big-title {
-        font-size: 3.6rem !important;
-        font-weight: 900;
-        text-align: center;
-        background: linear-gradient(135deg, #60a5fa, #a78bfa, #ec4899);
-        background-size: 200% 200%;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 0.5rem !important;
-        letter-spacing: -1px;
-        animation: gradientShift 8s ease infinite;
+    /* Typography Hierarchy */
+    .page-header {
+        margin-bottom: 0.75rem;
     }
     
-    @keyframes gradientShift {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-    }
-    
-    .subtitle {
-        text-align: center;
-        font-size: 1.15rem;
-        background: linear-gradient(90deg, #94a3b8, #cbd5e1);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 0.5rem 0 2.5rem 0;
-        font-weight: 500;
-        letter-spacing: 0.3px;
-    }
-    
-    /* Glassmorphic Sidebar */
-    section[data-testid="stSidebar"] {
-        background: rgba(17, 24, 39, 0.7) !important;
-        backdrop-filter: blur(10px) !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-    }
-    
-    section[data-testid="stSidebar"] .stMarkdown > p {
-        color: #cbd5e1;
-    }
-    
-    .sidebar-title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: #f0f9ff;
-        text-align: center;
-        margin-bottom: 1.5rem;
-        padding: 1rem;
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
-        border: 1px solid rgba(96, 165, 250, 0.3);
-        border-radius: 16px;
-        backdrop-filter: blur(8px);
-    }
-    
-    .progress-step {
-        padding: 1rem;
-        border-radius: 14px;
-        margin: 0.6rem 0;
-        font-size: 0.95rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        color: #e2e8f0;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        background: rgba(31, 41, 55, 0.6);
-        border: 1px solid rgba(75, 85, 99, 0.4);
-        backdrop-filter: blur(8px);
-        cursor: pointer;
-    }
-    
-    .progress-step:hover {
-        background: rgba(59, 130, 246, 0.15);
-        border-color: rgba(96, 165, 250, 0.5);
-        transform: translateX(4px);
-    }
-    
-    .progress-step.completed {
-        background: rgba(16, 185, 129, 0.15);
-        border-color: rgba(16, 185, 129, 0.4);
-        border-left: 4px solid #10b981;
-    }
-    
-    .progress-step.in-progress {
-        background: rgba(59, 130, 246, 0.2);
-        border-color: rgba(96, 165, 250, 0.6);
-        border-left: 4px solid #3b82f6;
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-    }
-    
-    .progress-step.pending {
-        background: rgba(75, 85, 99, 0.3);
-        border-color: rgba(107, 114, 128, 0.3);
-        opacity: 0.7;
-    }
-    
-    .step-icon {
-        font-size: 1.3em;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-    }
-    
-    .step-status {
-        font-size: 0.85em;
-        color: #cbd5e1;
-        font-weight: 600;
-    }
-    
-    /* Step Headers - Modern Design */
-    .step-header {
-        font-size: 2rem;
-        font-weight: 800;
-        color: #f9fafb;
-        margin: 2.5rem 0 1.2rem 0;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid rgba(96, 165, 250, 0.3);
-        letter-spacing: -0.5px;
-    }
-    
-    /* Input Styling */
-    .stTextInput > div > div > input {
-        background-color: rgba(31, 41, 55, 0.7) !important;
-        color: #e2e8f0 !important;
-        border: 1.5px solid rgba(96, 165, 250, 0.3) !important;
-        border-radius: 12px !important;
-        padding: 0.75rem 1rem !important;
-        font-size: 1rem !important;
-        transition: all 0.3s ease !important;
-        backdrop-filter: blur(8px) !important;
-    }
-    
-    .stTextInput > div > div > input:focus {
-        border-color: #3b82f6 !important;
-        background-color: rgba(31, 41, 55, 0.9) !important;
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3) !important;
-    }
-    
-    .stFileUploader {
-        background-color: rgba(31, 41, 55, 0.7) !important;
-        border: 2px dashed rgba(96, 165, 250, 0.4) !important;
-        border-radius: 16px !important;
-        backdrop-filter: blur(8px) !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .stFileUploader:hover {
-        border-color: #3b82f6 !important;
-        background-color: rgba(59, 130, 246, 0.1) !important;
-    }
-    
-    .stExpander {
-        background-color: rgba(31, 41, 55, 0.6) !important;
-        border: 1px solid rgba(96, 165, 250, 0.3) !important;
-        border-radius: 14px !important;
-        margin: 0.8rem 0 !important;
-        backdrop-filter: blur(8px) !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .stExpander:hover {
-        border-color: #3b82f6 !important;
-        background-color: rgba(59, 130, 246, 0.15) !important;
-    }
-    
-    .stExpander > div > label {
-        color: #e2e8f0 !important;
-        font-weight: 600 !important;
-    }
-    
-    .stCode {
-        background-color: rgba(15, 23, 42, 0.8) !important;
-        border: 1px solid rgba(96, 165, 250, 0.2) !important;
-        border-radius: 12px !important;
-        backdrop-filter: blur(8px) !important;
-    }
-    
-    /* Test Case Cards - Modern */
-    .test-case-card {
-        background: linear-gradient(135deg, rgba(31, 41, 55, 0.8), rgba(55, 65, 81, 0.6));
-        border: 1.5px solid rgba(96, 165, 250, 0.3);
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin: 1rem 0;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        backdrop-filter: blur(8px);
-        cursor: pointer;
-    }
-    
-    .test-case-card:hover {
-        border-color: #3b82f6;
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(96, 165, 250, 0.1));
-        transform: translateY(-2px);
-        box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
-    }
-    
-    .test-case-id {
-        font-weight: 800;
-        background: linear-gradient(135deg, #60a5fa, #93c5fd);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
-        letter-spacing: 0.5px;
-    }
-    
-    .test-case-feature {
-        font-size: 1.2rem;
+    .page-title {
+        font-size: 2.25rem;
         font-weight: 700;
-        color: #f9fafb;
-        margin-bottom: 0.8rem;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
     }
     
-    .test-case-scenario {
-        color: #d1d5db;
+    .page-subtitle {
         font-size: 0.95rem;
-        margin: 0.5rem 0;
+        color: #b4bac7;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+        margin-bottom: 3rem;
+    }
+    
+    /* Sidebar */
+    section[data-testid="stSidebar"] {
+        background: #0d1117 !important;
+        border-right: 1px solid #1f2937 !important;
+        padding: 2rem 1.5rem !important;
+    }
+    
+    .sidebar-header {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #b4bac7;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #1f2937;
+    }
+    
+    .workflow-step {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        padding: 0.875rem 1rem;
+        margin: 0.375rem 0;
+        background: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        cursor: default;
+    }
+    
+    .workflow-step:hover {
+        background: #1c2128;
+        border-color: #30363d;
+    }
+    
+    .workflow-step.completed {
+        background: #0d1117;
+        border-color: #238636;
+        border-left-width: 3px;
+    }
+    
+    .workflow-step.active {
+        background: #0d1117;
+        border-color: #1f6feb;
+        border-left-width: 3px;
+    }
+    
+    .workflow-step.pending {
+        opacity: 0.5;
+    }
+    
+    .step-number {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #b4bac7;
+        min-width: 1.5rem;
+        font-variant-numeric: tabular-nums;
+    }
+    
+    .workflow-step.completed .step-number {
+        color: #3fb950;
+    }
+    
+    .workflow-step.active .step-number {
+        color: #58a6ff;
+    }
+    
+    .step-label {
+        flex: 1;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #e4e7ec;
+    }
+    
+    .step-indicator {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #30363d;
+    }
+    
+    .workflow-step.completed .step-indicator {
+        background: #3fb950;
+    }
+    
+    .workflow-step.active .step-indicator {
+        background: #58a6ff;
+        box-shadow: 0 0 8px rgba(88, 166, 255, 0.5);
+    }
+    
+    .progress-stats {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        margin-top: 1rem;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+    }
+    
+    /* Section Headers */
+    .section-header {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #f9fafb;
+        margin: 2.5rem 0 1.25rem 0;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #21262d;
+        letter-spacing: -0.01em;
+    }
+    
+    .section-description {
+        font-size: 0.875rem;
+        color: #b4bac7;
+        margin-bottom: 1.5rem;
         line-height: 1.6;
     }
     
-    .test-case-expected {
-        color: #a1a5b3;
-        font-size: 0.9rem;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid rgba(96, 165, 250, 0.2);
-        font-style: italic;
+    /* Form Elements */
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea {
+        background-color: #0d1117 !important;
+        color: #f0f3f7 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 6px !important;
+        padding: 0.625rem 0.875rem !important;
+        font-size: 0.875rem !important;
+        font-weight: 400 !important;
+        transition: all 0.15s ease !important;
     }
     
-    .grounded-badge {
-        display: inline-block;
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(34, 197, 94, 0.2));
-        color: #10b981;
-        padding: 0.4rem 0.8rem;
-        border-radius: 8px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        margin-top: 0.5rem;
-        margin-right: 0.5rem;
-        border: 1px solid rgba(16, 185, 129, 0.4);
+    .stTextInput > div > div > input:focus,
+    .stTextArea > div > div > textarea:focus {
+        border-color: #1f6feb !important;
+        background-color: #161b22 !important;
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.1) !important;
     }
     
-    /* Buttons - Modern Design */
+    .stTextInput > div > div > input::placeholder,
+    .stTextArea > div > div > textarea::placeholder {
+        color: #8b92a7 !important;
+    }
+    
+    /* File Uploader */
+    .stFileUploader {
+        background-color: #0d1117 !important;
+        border: 1px dashed #30363d !important;
+        border-radius: 6px !important;
+        padding: 1.5rem !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .stFileUploader:hover {
+        border-color: #58a6ff !important;
+        background-color: #161b22 !important;
+    }
+    
+    .stFileUploader > div {
+        color: #b4bac7 !important;
+    }
+    
+    /* Buttons */
     .stButton > button {
-        height: 3.2em;
-        border-radius: 14px;
-        font-weight: 700;
-        font-size: 1.05rem;
-        background: linear-gradient(135deg, #3b82f6, #2563eb);
-        border: none;
-        color: white;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 2.5rem;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.875rem;
+        background: #238636;
+        border: 1px solid #2ea043;
+        color: #ffffff;
+        transition: all 0.15s ease;
         width: 100%;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-        letter-spacing: 0.3px;
+        letter-spacing: 0.005em;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
     
     .stButton > button:hover {
-        background: linear-gradient(135deg, #2563eb, #1d4ed8);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        background: #2ea043;
+        border-color: #3fb950;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     }
     
     .stButton > button:active {
+        background: #26a148;
         transform: translateY(0);
-        box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+    }
+    
+    .stButton > button[kind="secondary"] {
+        background: #21262d;
+        border-color: #30363d;
+        color: #e4e7ec;
+    }
+    
+    .stButton > button[kind="secondary"]:hover {
+        background: #30363d;
+        border-color: #484f58;
     }
     
     .stButton > button:disabled {
-        background: rgba(107, 114, 128, 0.5);
+        background: #21262d;
+        border-color: #30363d;
+        color: #6e7681;
         opacity: 0.6;
-        box-shadow: none;
+        cursor: not-allowed;
+    }
+    
+    /* Download Button */
+    .stDownloadButton > button {
+        height: 2.5rem;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.875rem;
+        background: #0d1117;
+        border: 1px solid #30363d;
+        color: #e4e7ec;
+        transition: all 0.15s ease;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+    
+    .stDownloadButton > button:hover {
+        background: #161b22;
+        border-color: #58a6ff;
+        color: #58a6ff;
+    }
+    
+    /* Multiselect */
+    .stMultiSelect > div > div {
+        background-color: #0d1117 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 6px !important;
+    }
+    
+    .stMultiSelect [data-baseweb="tag"] {
+        background-color: #1f6feb !important;
+        border-radius: 4px !important;
+        font-size: 0.75rem !important;
+        padding: 0.25rem 0.5rem !important;
+    }
+    
+    /* Selectbox */
+    .stSelectbox > div > div {
+        background-color: #0d1117 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 6px !important;
+        color: #f0f3f7 !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] {
+        color: #f0f3f7 !important;
+    }
+    
+    /* Test Case Cards */
+    .test-case-card {
+        background: #0d1117;
+        border: 1px solid #21262d;
+        border-radius: 6px;
+        padding: 1.25rem;
+        margin: 0.75rem 0;
+        transition: all 0.2s ease;
+    }
+    
+    .test-case-card:hover {
+        border-color: #30363d;
+        background: #161b22;
+    }
+    
+    .test-case-meta {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #58a6ff;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .test-case-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #f9fafb;
+        margin-bottom: 0.75rem;
+        line-height: 1.4;
+    }
+    
+    .test-case-content {
+        font-size: 0.875rem;
+        color: #b4bac7;
+        line-height: 1.6;
+        margin: 0.5rem 0;
+    }
+    
+    .test-case-label {
+        font-weight: 500;
+        color: #e4e7ec;
+    }
+    
+    .test-case-expected {
+        font-size: 0.875rem;
+        color: #9ca3af;
+        margin-top: 0.875rem;
+        padding-top: 0.875rem;
+        border-top: 1px solid #21262d;
+        font-style: italic;
+    }
+    
+    .grounded-tag {
+        display: inline-block;
+        background: rgba(35, 134, 54, 0.15);
+        color: #3fb950;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+        margin-right: 0.375rem;
+        border: 1px solid rgba(35, 134, 54, 0.3);
+        letter-spacing: 0.02em;
     }
     
     /* Selection Counter */
-    .selection-counter {
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(96, 165, 250, 0.15));
-        border: 1.5px solid rgba(59, 130, 246, 0.5);
-        color: #93c5fd;
-        padding: 1rem;
-        border-radius: 14px;
+    .selection-info {
+        background: rgba(31, 111, 235, 0.08);
+        border: 1px solid rgba(31, 111, 235, 0.2);
+        color: #58a6ff;
+        padding: 0.875rem 1.125rem;
+        border-radius: 6px;
         text-align: center;
-        font-weight: 700;
-        margin: 1.5rem 0;
-        backdrop-filter: blur(8px);
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
-        font-size: 1.05rem;
+        font-weight: 500;
+        margin: 1.25rem 0;
+        font-size: 0.875rem;
+        font-variant-numeric: tabular-nums;
+    }
+    
+    /* Expander */
+    .stExpander {
+        background-color: #0d1117 !important;
+        border: 1px solid #21262d !important;
+        border-radius: 6px !important;
+        margin: 0.75rem 0 !important;
+    }
+    
+    .stExpander:hover {
+        border-color: #30363d !important;
+    }
+    
+    .stExpander summary {
+        color: #e4e7ec !important;
+        font-weight: 500 !important;
+        font-size: 0.875rem !important;
+    }
+    
+    /* Code Block */
+    .stCodeBlock {
+        background-color: #0d1117 !important;
+        border: 1px solid #21262d !important;
+        border-radius: 6px !important;
+        font-size: 0.8125rem !important;
     }
     
     /* Playback Panel */
-    .playback-panel {
+    .playback-container {
         width: 100%;
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
-        border: 1.5px solid rgba(96, 165, 250, 0.3);
-        border-radius: 18px;
+        background: #0d1117;
+        border: 1px solid #21262d;
+        border-radius: 6px;
         padding: 1rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        backdrop-filter: blur(10px);
     }
     
-    .playback-panel img,
-    .playback-panel video {
+    .playback-container img,
+    .playback-container video {
         width: 100%;
-        max-height: 640px;
-        border-radius: 14px;
+        max-height: 600px;
+        border-radius: 4px;
         object-fit: contain;
         display: block;
-        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+        background: #000000;
     }
     
-    .live-feed-pill {
+    .status-badge {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(96, 165, 250, 0.15));
-        border: 1.5px solid rgba(59, 130, 246, 0.5);
-        color: #93c5fd;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        backdrop-filter: blur(8px);
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        background: rgba(31, 111, 235, 0.12);
+        border: 1px solid rgba(31, 111, 235, 0.25);
+        color: #58a6ff;
+        padding: 0.375rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 0.875rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
     }
     
-    @keyframes pulse {
+    .status-indicator {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #58a6ff;
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-glow {
         0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
+        50% { opacity: 0.4; }
     }
     
-    /* Alerts & Info */
+    /* Alerts */
     .stAlert {
-        border-radius: 14px;
-        border: 1.5px solid rgba(96, 165, 250, 0.3) !important;
-        background-color: rgba(31, 41, 55, 0.7) !important;
-        backdrop-filter: blur(8px) !important;
+        border-radius: 6px !important;
+        border: 1px solid #30363d !important;
+        background-color: #161b22 !important;
+        font-size: 0.875rem !important;
     }
     
     .stSuccess {
-        background: rgba(16, 185, 129, 0.15) !important;
-        border-color: rgba(16, 185, 129, 0.4) !important;
-        color: #86efac !important;
+        background: rgba(35, 134, 54, 0.08) !important;
+        border-color: rgba(35, 134, 54, 0.3) !important;
+        color: #3fb950 !important;
     }
     
     .stError {
-        background: rgba(239, 68, 68, 0.15) !important;
-        border-color: rgba(239, 68, 68, 0.4) !important;
-        color: #fca5a5 !important;
+        background: rgba(248, 81, 73, 0.08) !important;
+        border-color: rgba(248, 81, 73, 0.3) !important;
+        color: #f85149 !important;
     }
     
     .stWarning {
-        background: rgba(245, 158, 11, 0.15) !important;
-        border-color: rgba(245, 158, 11, 0.4) !important;
-        color: #fcd34d !important;
+        background: rgba(187, 128, 9, 0.08) !important;
+        border-color: rgba(187, 128, 9, 0.3) !important;
+        color: #d29922 !important;
     }
     
     .stInfo {
-        background: rgba(59, 130, 246, 0.15) !important;
-        border-color: rgba(59, 130, 246, 0.4) !important;
-        color: #93c5fd !important;
+        background: rgba(31, 111, 235, 0.08) !important;
+        border-color: rgba(31, 111, 235, 0.25) !important;
+        color: #58a6ff !important;
     }
     
-    /* Tabs */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 0.5rem;
-        background-color: transparent;
-        padding: 0.5rem;
+    /* Metrics */
+    .metric-container {
+        background: #0d1117;
+        border: 1px solid #21262d;
+        border-radius: 6px;
+        padding: 1rem;
+        text-align: center;
     }
     
-    .stTabs [data-baseweb="tab"] {
-        border-radius: 12px;
-        font-weight: 600;
-        transition: all 0.3s ease;
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f9fafb;
+        margin-bottom: 0.25rem;
+        font-variant-numeric: tabular-nums;
+    }
+    
+    .metric-label {
+        font-size: 0.75rem;
+        color: #b4bac7;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    /* DataFrame */
+    .stDataFrame {
+        border: 1px solid #21262d !important;
+        border-radius: 6px !important;
+        overflow: hidden !important;
+    }
+    
+    /* Progress Bar */
+    .stProgress > div > div {
+        background-color: #161b22 !important;
+        border-radius: 4px !important;
+    }
+    
+    .stProgress > div > div > div {
+        background: linear-gradient(90deg, #1f6feb, #58a6ff) !important;
+        border-radius: 4px !important;
     }
     
     /* Divider */
     hr {
         border: none;
         height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.3), transparent);
-        margin: 2rem 0;
+        background: #21262d;
+        margin: 2.5rem 0;
+    }
+    
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 0.25rem;
+        background-color: transparent;
+        border-bottom: 1px solid #21262d;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 6px 6px 0 0;
+        font-weight: 500;
+        font-size: 0.875rem;
+        color: #b4bac7;
+        padding: 0.625rem 1rem;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        background: #161b22;
+        color: #e4e7ec;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        color: #58a6ff !important;
+        border-bottom: 2px solid #1f6feb !important;
     }
     
     /* Footer */
-    footer {
-        border-top: 1px solid rgba(96, 165, 250, 0.2);
-        padding-top: 2rem;
+    .app-footer {
+        text-align: center;
+        margin-top: 4rem;
+        padding: 2rem 0;
+        border-top: 1px solid #21262d;
     }
     
-    /* Scrollbar Styling */
+    .footer-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #e4e7ec;
+        margin-bottom: 0.375rem;
+    }
+    
+    .footer-description {
+        font-size: 0.8125rem;
+        color: #9ca3af;
+        line-height: 1.5;
+    }
+    
+    /* Scrollbar */
     ::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
     }
     
     ::-webkit-scrollbar-track {
-        background: rgba(31, 41, 55, 0.5);
+        background: #0d1117;
     }
     
     ::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, rgba(59, 130, 246, 0.5), rgba(139, 92, 246, 0.5));
-        border-radius: 5px;
+        background: #30363d;
+        border-radius: 4px;
     }
     
     ::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+        background: #484f58;
+    }
+    
+    /* Caption Text */
+    .stCaption {
+        color: #9ca3af !important;
+        font-size: 0.8125rem !important;
+    }
+    
+    /* Labels */
+    label {
+        color: #e4e7ec !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Markdown text */
+    .stMarkdown {
+        color: #e4e7ec;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -460,12 +645,14 @@ validation_report = st.session_state.get("validation_report")
 playback_result = st.session_state.get("playback_result")
 
 # ========================= HEADER =========================
-st.markdown('<h1 class="big-title">QA Agent</h1>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle">AI-powered QA • Ingest docs • Generate grounded tests • Export Selenium scripts</p>', unsafe_allow_html=True)
+st.markdown('<div class="page-header">', unsafe_allow_html=True)
+st.markdown('<div class="page-title">QA Agent</div>', unsafe_allow_html=True)
+st.markdown('<div class="page-subtitle">Automated test generation and validation system</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
 
-# ========================= ENHANCED SIDEBAR =========================
+# ========================= SIDEBAR =========================
 with st.sidebar:
-    st.markdown("<div class='sidebar-title'>Workflow Progress</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sidebar-header'>Workflow Progress</div>", unsafe_allow_html=True)
     
     # Calculate progress
     step1_complete = bool(docs_path and checkout_html)
@@ -474,77 +661,91 @@ with st.sidebar:
     step4_complete = bool(latest_script)
     step5_complete = bool(validation_report or playback_result)
 
-    completed_steps = sum([
-        step1_complete,
-        step2_complete,
-        step3_complete,
-        step4_complete,
-        step5_complete,
-    ])
+    completed_steps = sum([step1_complete, step2_complete, step3_complete, step4_complete, step5_complete])
     total_steps = 5
     progress = (completed_steps / total_steps) * 100 if total_steps else 0
+    
     st.progress(progress / 100)
-    st.caption(f"{progress:.0f}% Complete • {completed_steps}/{total_steps} steps")
+    st.markdown(f"<div class='progress-stats'>{completed_steps} of {total_steps} completed</div>", unsafe_allow_html=True)
     
-    st.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
     
+    # Step 1
+    step1_status = "completed" if step1_complete else ("active" if not step1_complete else "pending")
     st.markdown(f"""
-    <div class="progress-step {'completed' if step1_complete else 'in-progress' if 'docs_path' in st.session_state else 'pending'}">
-        <span class="step-icon">1</span>
-        <span style="flex: 1;">Ingest Files</span>
-        <span class="step-status">{'✓' if step1_complete else '•' if 'docs_path' in st.session_state else '○'}</span>
-    </div>
-    <div class="progress-step {'completed' if step2_complete else 'in-progress' if step1_complete else 'pending'}">
-        <span class="step-icon">2</span>
-        <span style="flex: 1;">Build KB</span>
-        <span class="step-status">{'✓' if step2_complete else '•' if step1_complete else '○'}</span>
-    </div>
-    <div class="progress-step {'completed' if step3_complete else 'in-progress' if step2_complete else 'pending'}">
-        <span class="step-icon">3</span>
-        <span style="flex: 1;">Generate Tests</span>
-        <span class="step-status">{'✓' if step3_complete else '•' if step2_complete else '○'}</span>
-    </div>
-    <div class="progress-step {'completed' if step4_complete else 'in-progress' if step3_complete else 'pending'}">
-        <span class="step-icon">4</span>
-        <span style="flex: 1;">Export Script</span>
-        <span class="step-status">{'✓' if step4_complete else '•' if step3_complete else '○'}</span>
-    </div>
-    <div class="progress-step {'completed' if step5_complete else 'in-progress' if step4_complete else 'pending'}">
-        <span class="step-icon">5</span>
-        <span style="flex: 1;">Validate & Playback</span>
-        <span class="step-status">{'✓' if step5_complete else '•' if step4_complete else '○'}</span>
+    <div class="workflow-step {step1_status}">
+        <span class="step-number">01</span>
+        <span class="step-label">Ingest Files</span>
+        <span class="step-indicator"></span>
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("---")
-    st.markdown("**Tip:** Each step unlocks the next—no jumping around!")
+    # Step 2
+    step2_status = "completed" if step2_complete else ("active" if step1_complete and not step2_complete else "pending")
+    st.markdown(f"""
+    <div class="workflow-step {step2_status}">
+        <span class="step-number">02</span>
+        <span class="step-label">Build Knowledge Base</span>
+        <span class="step-indicator"></span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Step 3
+    step3_status = "completed" if step3_complete else ("active" if step2_complete and not step3_complete else "pending")
+    st.markdown(f"""
+    <div class="workflow-step {step3_status}">
+        <span class="step-number">03</span>
+        <span class="step-label">Generate Test Cases</span>
+        <span class="step-indicator"></span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Step 4
+    step4_status = "completed" if step4_complete else ("active" if step3_complete and not step4_complete else "pending")
+    st.markdown(f"""
+    <div class="workflow-step {step4_status}">
+        <span class="step-number">04</span>
+        <span class="step-label">Export Script</span>
+        <span class="step-indicator"></span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Step 5
+    step5_status = "completed" if step5_complete else ("active" if step4_complete and not step5_complete else "pending")
+    st.markdown(f"""
+    <div class="workflow-step {step5_status}">
+        <span class="step-number">05</span>
+        <span class="step-label">Validate & Execute</span>
+        <span class="step-indicator"></span>
+    </div>
+    """, unsafe_allow_html=True)
 
-# ========================= STEP 1 - Single Upload =========================
-st.markdown('<div class="step-header">Step 1: Ingest All Files</div>', unsafe_allow_html=True)
+# ========================= STEP 1 =========================
+st.markdown('<div class="section-header">Step 1: Ingest Documentation</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-description">Upload project documentation with target page HTML/ paste the target web page for analysis</div>', unsafe_allow_html=True)
 
 col1, col2 = st.columns([2, 1])
 with col1:
-    st.markdown("**Upload docs + checkout.html at once** (PDF, MD, TXT, JSON)")
+    all_files = st.file_uploader(
+        "Documentation Files",
+        accept_multiple_files=True,
+        type=["pdf", "md", "txt", "json", "html"],
+        help="Supported formats: PDF, Markdown, Text, JSON, HTML"
+    )
 with col2:
     html_url = st.text_input(
-        "Checkout HTML URL (optional)",
+        "Checkout URL",
         value=st.session_state.get("checkout_html_url", ""),
-        placeholder="http://localhost:3000/checkout",
+        placeholder="Paste the link to your target.html",
+        help="Optional: Provide URL instead of file upload"
     )
 
-all_files = st.file_uploader(
-    "Drop files here",
-    accept_multiple_files=True,
-    type=["pdf", "md", "txt", "json", "html"],
-    label_visibility="collapsed"
-)
-
-if st.button("Process All Files", type="primary", width='stretch'):
+if st.button("Process Files", type="primary"):
     html_src = None
     html_bytes = None
     files = []
 
-    # Prioritise uploaded checkout.html if present, else fall back to URL
+    # Handle HTML source
     html_file = next((f for f in all_files or [] if f.name.lower() == "checkout.html"), None)
     if html_file:
         html_bytes = html_file.getvalue()
@@ -561,11 +762,12 @@ if st.button("Process All Files", type="primary", width='stretch'):
                 html_src = resp.text
                 files.append(("files", ("checkout.html", html_bytes, "text/html")))
             except Exception as exc:
-                st.error(f"❌ Failed to fetch HTML from URL: {exc}")
+                st.error(f"Failed to fetch HTML from URL: {exc}")
                 html_bytes = None
         else:
             html_bytes = None
 
+    # Handle other files
     other_files = []
     for f in all_files or []:
         if html_file and f.name.lower() == "checkout.html":
@@ -575,11 +777,11 @@ if st.button("Process All Files", type="primary", width='stretch'):
     files.extend(other_files)
 
     if not files:
-        st.error("Upload at least one document or provide a checkout HTML URL/file")
+        st.error("Please upload at least one document or provide a checkout HTML URL")
     elif not html_bytes:
-        st.error("❌ Provide checkout.html via upload or a reachable URL")
+        st.error("Checkout HTML is required via file upload or URL")
     else:
-        with st.spinner("🔄 Processing uploads..."):
+        with st.spinner("Processing files..."):
             r = requests.post(f"{API}/upload_files", files=files)
         if r.ok:
             data = r.json()
@@ -591,43 +793,51 @@ if st.button("Process All Files", type="primary", width='stretch'):
                 st.session_state.pop("checkout_html_url", None)
             for key in ("kb_info", "test_cases", "latest_script", "validation_report", "script_ready", "last_query", "playback_result", "selected_test_ids"):
                 st.session_state.pop(key, None)
-            st.success("All files processed successfully!")
+            st.success("Files processed successfully")
+            st.rerun()
         else:
-            st.error(f"❌ {r.text}")
+            st.error(f"Processing failed: {r.text}")
 
-# ========================= STEP 2 - Build KB =========================
+# ========================= STEP 2 =========================
 if "docs_path" in st.session_state:
-    st.markdown('<div class="step-header">Step 2: Build Knowledge Base</div>', unsafe_allow_html=True)
-    c1, c2 = st.columns([1.2, 4])
-    with c1:
-        if st.button("🔨 Build KB", type="secondary", width='stretch'):
-            with st.spinner("🔄 Indexing documents..."):
+    st.markdown('<div class="section-header">Step 2: Build Knowledge Base</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">Index documentation for intelligent test generation</div>', unsafe_allow_html=True)
+    
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        if st.button("Build Knowledge Base", type="secondary"):
+            with st.spinner("Indexing documents..."):
                 r = requests.post(f"{API}/build_kb", json={"docs_path": st.session_state.docs_path})
             if r.ok:
                 st.session_state.kb_info = r.json()
                 for key in ("test_cases", "latest_script", "validation_report", "script_ready", "playback_result", "selected_test_ids"):
                     st.session_state.pop(key, None)
-                st.success("✅ Knowledge base indexed!")
+                st.success("Knowledge base created successfully")
+                st.rerun()
             else:
-                st.error(f"❌ {r.text}")
-    with c2:
+                st.error(f"Indexing failed: {r.text}")
+    
+    with col2:
         if st.session_state.get("kb_info"):
             info = st.session_state.kb_info
-            st.info(f"Indexed: **{info['total_chunks']} chunks** from **{info['total_documents']} docs**")
+            st.info(f"Indexed {info['total_chunks']} chunks from {info['total_documents']} documents")
 
-# ========================= STEP 3 - Generate Tests =========================
+# ========================= STEP 3 =========================
 if st.session_state.get("kb_info"):
-    st.markdown('<div class="step-header">Step 3: Generate Test Cases</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Step 3: Generate Test Cases</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">Define test scenarios using natural language queries</div>', unsafe_allow_html=True)
+    
     query = st.text_input(
-        "Test query",
-        placeholder="e.g., checkout validation with invalid payment inputs",
+        "Test Scenario Query",
+        placeholder="Example: Validate checkout flow with invalid payment methods",
         value=st.session_state.get("last_query", ""),
-        label_visibility="collapsed"
+        help="Describe the test scenarios you want to generate"
     )
-    c1, c2 = st.columns([1.2, 4])
-    with c1:
-        if st.button("⚡ Generate Tests", type="primary", width='stretch'):
-            with st.spinner("🤖 Generating test scenarios..."):
+    
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        if st.button("Generate Test Cases", type="primary"):
+            with st.spinner("Generating test scenarios..."):
                 r = requests.post(f"{API}/generate_tests", json={
                     "docs_path": st.session_state.docs_path,
                     "query": query,
@@ -639,37 +849,41 @@ if st.session_state.get("kb_info"):
                 st.session_state.last_query = query
                 for key in ("latest_script", "validation_report", "script_ready", "playback_result", "selected_test_ids"):
                     st.session_state.pop(key, None)
-                st.success(f"Generated **{len(res['test_cases'])}** test cases!")
+                st.success(f"Generated {len(res['test_cases'])} test cases")
                 st.rerun()
             else:
-                st.error(f"❌ {r.text}")
-    with c2:
+                st.error(f"Generation failed: {r.text}")
+    
+    with col2:
         if st.session_state.get("test_cases"):
-            st.info(f"**{len(st.session_state.test_cases)}** test cases ready")
+            st.info(f"{len(st.session_state.test_cases)} test cases available for review")
 
     if test_cases:
-        st.markdown("**Generated Test Cases**")
-        option_labels = [f"{tc['id']} · {tc['feature'][:42]}" for tc in test_cases]
+        st.markdown("**Test Case Selection**")
+        
+        option_labels = [f"{tc['id']} · {tc['feature'][:50]}" for tc in test_cases]
         id_by_label = {label: tc["id"] for label, tc in zip(option_labels, test_cases)}
 
         prior_selection = st.session_state.get("selected_test_ids", [])
         default_labels = [label for label, case_id in id_by_label.items() if case_id in prior_selection]
 
         selected_labels = st.multiselect(
-            "Select cases to automate",
+            "Select test cases to automate",
             options=option_labels,
             default=default_labels,
-            help="Multiselect keeps the UI fast even with dozens of cases.",
+            help="Choose one or more test cases for script generation",
             key="case_multiselect",
         )
         st.session_state.selected_test_ids = [id_by_label[label] for label in selected_labels]
 
+        # Preview section
         preview_map = {tc["id"]: tc for tc in test_cases}
         preview_default = st.session_state.get("preview_case_id") or (prior_selection[0] if prior_selection else test_cases[0]["id"])
         if preview_default not in preview_map:
             preview_default = test_cases[0]["id"]
+            
         preview_choice = st.selectbox(
-            "Preview details",
+            "Preview Test Case",
             options=list(preview_map.keys()),
             index=list(preview_map.keys()).index(preview_default),
             format_func=lambda cid: f"{cid} · {preview_map[cid]['feature']}",
@@ -681,37 +895,43 @@ if st.session_state.get("kb_info"):
         st.markdown(
             f"""
             <div class="test-case-card">
-                <div class="test-case-id">ID: {preview_case['id']}</div>
-                <div class="test-case-feature">{preview_case['feature']}</div>
-                <div class="test-case-scenario"><strong>Scenario:</strong><br/>{preview_case['scenario']}</div>
-                <div class="test-case-expected"><strong>Expected:</strong><br/>{preview_case['expected_result']}</div>
+                <div class="test-case-meta">{preview_case['id']}</div>
+                <div class="test-case-title">{preview_case['feature']}</div>
+                <div class="test-case-content">
+                    <span class="test-case-label">Scenario:</span> {preview_case['scenario']}
+                </div>
+                <div class="test-case-expected">
+                    <span class="test-case-label">Expected Result:</span> {preview_case['expected_result']}
+                </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
         if preview_case.get("grounded_in"):
-            st.markdown(f"<span class='grounded-badge'>Grounded in: {' • '.join(preview_case['grounded_in'])}</span>", unsafe_allow_html=True)
+            tags_html = "".join([f"<span class='grounded-tag'>{src}</span>" for src in preview_case['grounded_in']])
+            st.markdown(tags_html, unsafe_allow_html=True)
 
-# ========================= STEP 4 - Generate Script =========================
+# ========================= STEP 4 =========================
 if test_cases:
-    st.markdown('<div class="step-header">Step 4: Export Selenium Script</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Step 4: Export Selenium Script</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">Generate executable Selenium automation code</div>', unsafe_allow_html=True)
     
     if not checkout_html:
-        st.warning("checkout.html required — return to Step 1")
+        st.warning("Checkout HTML required. Please return to Step 1 to upload the file.")
 
     selected = st.session_state.get("selected_test_ids", [])
     
     if selected:
         st.markdown(f"""
-        <div class="selection-counter">
-            {len(selected)} test case(s) selected for automation
+        <div class="selection-info">
+            {len(selected)} test case{"s" if len(selected) != 1 else ""} selected for script generation
         </div>
         """, unsafe_allow_html=True)
 
     can_run = bool(selected and checkout_html)
 
-    if st.button("🔧 Generate Script", type="primary", width='stretch', disabled=not can_run):
-        with st.spinner("🤖 Generating Selenium code..."):
+    if st.button("Generate Selenium Script", type="primary", disabled=not can_run):
+        with st.spinner("Generating automation code..."):
             selected_cases = [tc for tc in test_cases if tc['id'] in selected]
             r = requests.post(f"{API}/generate_selenium", json={
                 "docs_path": docs_path,
@@ -727,229 +947,217 @@ if test_cases:
             st.session_state["script_ready"] = True
             st.session_state.pop("validation_report", None)
             st.session_state.pop("playback_result", None)
-            st.success("Selenium script generated! Proceed to Step 5 for validation & playback.")
+            st.success("Selenium script generated successfully")
+            st.rerun()
         else:
-            st.error(f"❌ {r.text}")
+            st.error(f"Generation failed: {r.text}")
 
     if latest_script:
-        st.markdown("**Generated Script Preview**")
-        with st.expander("View Full Script", expanded=False):
+        with st.expander("View Generated Script", expanded=False):
             st.code(latest_script, language="python")
         
-        col1, col2 = st.columns(2)
-        with col1:
-            st.download_button(
-                "Download Script",
-                latest_script,
-                "selenium_tests.py",
-                "text/x-python",
-                key="download_latest_script",
-                width='stretch'
-            )
-        with col2:
-            st.markdown("[Continue to Step 5 →](#step5-anchor)", unsafe_allow_html=True)
+        st.download_button(
+            "Download Script",
+            latest_script,
+            "selenium_tests.py",
+            "text/x-python",
+            key="download_latest_script",
+        )
 
-# ========================= STEP 5 - Validate & Playback =========================
+# ========================= STEP 5 =========================
 if latest_script and checkout_html:
-    st.markdown('<div id="step5-anchor"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="step-header">Step 5: Validate & Playback</div>', unsafe_allow_html=True)
-    st.markdown("**One-click validation + headless automation with GIF/MP4 recording**")
+    st.markdown('<div class="section-header">Step 5: Validate & Execute</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-description">Run validation checks and execute automated tests with recording</div>', unsafe_allow_html=True)
+    selected_ids = st.session_state.get("selected_test_ids", [])
 
-    action_col, status_col = st.columns([1.1, 5])
-    
-    with action_col:
-        st.markdown("**Action**")
-        if st.button("▶ Run Full Pipeline", type="primary", width='stretch'):
-            if not docs_path:
-                st.error("Upload files again to rehydrate the session.")
-            else:
-                run_id = str(uuid.uuid4())
-                st.session_state["pending_run_id"] = run_id
-                encoded_docs_path = quote_plus(docs_path)
-                live_url = f"{API}/live_feed?docs_path={encoded_docs_path}&run_id={run_id}"
-                st.session_state["live_feed_url"] = live_url
-                st.info("Live feed streaming...")
-                st.session_state.pop("validation_report", None)
-                st.session_state.pop("playback_result", None)
-                
-                payload = {
-                    "docs_path": docs_path,
-                    "script": latest_script,
-                    "html": checkout_html,
-                }
-                report = None
-                with st.spinner("Validating locators..."):
-                    try:
-                        resp = requests.post(f"{API}/validate_selenium", json=payload, timeout=30)
-                        if resp.ok:
-                            report = resp.json()
-                            st.session_state["validation_report"] = report
-                            st.success("Validation complete!")
-                        else:
-                            st.error(f"Validation failed: {resp.text}")
-                    except Exception as err:
-                        st.error(f"Connection error: {err}")
-
-                if report:
-                    with st.spinner("Running automation & recording..."):
-                        playback_payload = {
-                            "docs_path": docs_path,
-                            "script": latest_script,
-                            "html": checkout_html,
-                            "run_id": run_id,
-                        }
-                        playback_data = None
-                        try:
-                            resp = requests.post(f"{API}/run_selenium", json=playback_payload, timeout=300)
-                            if resp.ok:
-                                playback_data = resp.json()
-                            else:
-                                playback_data = resp.json() if resp.text else {"status": "error", "stderr": resp.text}
-                                st.error(f"Playback failed: {resp.text}")
-                        except Exception as err:
-                            st.error(f"Playback error: {err}")
-
-                        if playback_data:
-                            st.session_state["playback_result"] = playback_data
-                            st.session_state.pop("live_feed_url", None)
-                            st.session_state.pop("pending_run_id", None)
-                            st.success("Automation complete!")
-                else:
-                    st.session_state.pop("live_feed_url", None)
-                    st.session_state.pop("pending_run_id", None)
-
-    with status_col:
-        st.markdown("**Preview**")
-        live_feed_url = st.session_state.get("live_feed_url")
-        playback = st.session_state.get("playback_result")
-
-        if live_feed_url:
-            st.markdown("<span class='live-feed-pill'>LIVE FEED</span>", unsafe_allow_html=True)
-            try:
-                st.markdown(
-                    f"<div class='playback-panel'><img src='{live_feed_url}' alt='Live stream' /></div>",
-                    unsafe_allow_html=True,
-                )
-            except Exception as err:
-                st.warning(f"Live preview unavailable: {err}")
-
-        if playback:
-            status = playback.get("status")
-            run_id = playback.get("run_id", "automation")
-            mp4_base64 = playback.get("mp4_base64")
-            gif_base64 = playback.get("gif_base64")
+    if st.button("Execute Validation Pipeline", type="primary"):
+        if not docs_path:
+            st.error("Session expired. Please upload files again.")
+        else:
+            run_id = str(uuid.uuid4())
+            st.session_state["pending_run_id"] = run_id
+            encoded_docs_path = quote_plus(docs_path)
+            live_url = f"{API}/live_feed?docs_path={encoded_docs_path}&run_id={run_id}"
+            st.session_state["live_feed_url"] = live_url
+            st.session_state.pop("validation_report", None)
+            st.session_state.pop("playback_result", None)
             
-            if status == "ok":
-                st.success("Automation successful!")
-            else:
-                st.warning("Automation completed with warnings—see logs below")
+            payload = {
+                "docs_path": docs_path,
+                "script": latest_script,
+                "html": checkout_html,
+            }
+            report = None
+            with st.spinner("Validating script..."):
+                try:
+                    resp = requests.post(f"{API}/validate_selenium", json=payload, timeout=30)
+                    if resp.ok:
+                        report = resp.json()
+                        st.session_state["validation_report"] = report
+                        st.success("Validation completed")
+                    else:
+                        st.error(f"Validation failed: {resp.text}")
+                except Exception as err:
+                    st.error(f"Connection error: {err}")
 
-            if mp4_base64:
-                st.markdown(
-                    f"<div class='playback-panel'><video controls autoplay muted loop playsinline src='data:video/mp4;base64,{mp4_base64}'></video></div>",
-                    unsafe_allow_html=True,
-                )
-                video_bytes = base64.b64decode(mp4_base64)
-                st.download_button(
-                    "Download Video (MP4)",
-                    video_bytes,
-                    file_name=f"{run_id}.mp4",
-                    mime="video/mp4",
-                    key="download_playback_mp4",
-                    width='stretch'
-                )
-            elif gif_base64:
-                st.markdown(
-                    f"<div class='playback-panel'><img src='data:image/gif;base64,{gif_base64}' alt='Playback recording' /></div>",
-                    unsafe_allow_html=True,
-                )
-                gif_bytes = base64.b64decode(gif_base64)
-                st.download_button(
-                    "Download Recording (GIF)",
-                    gif_bytes,
-                    file_name=f"{run_id}.gif",
-                    mime="image/gif",
-                    key="download_playback_gif",
-                    width='stretch'
-                )
-            else:
-                st.info("No recorded frames. Verify Chrome is installed and accessible.")
+            if report:
+                with st.spinner("Executing automation..."):
+                    playback_payload = {
+                        "docs_path": docs_path,
+                        "script": latest_script,
+                        "html": checkout_html,
+                        "run_id": run_id,
+                        "selected_ids": selected_ids,
+                    }
+                    playback_data = None
+                    try:
+                        resp = requests.post(f"{API}/run_selenium", json=playback_payload, timeout=300)
+                        if resp.ok:
+                            playback_data = resp.json()
+                        else:
+                            playback_data = resp.json() if resp.text else {"status": "error", "stderr": resp.text}
+                            st.error(f"Execution failed: {resp.text}")
+                    except Exception as err:
+                        st.error(f"Execution error: {err}")
 
-            if playback.get("stdout"):
-                st.markdown("**Console Output**")
+                    if playback_data:
+                        st.session_state["playback_result"] = playback_data
+                        st.session_state.pop("live_feed_url", None)
+                        st.session_state.pop("pending_run_id", None)
+                        st.success("Automation completed")
+                        st.rerun()
+            else:
+                st.session_state.pop("live_feed_url", None)
+                st.session_state.pop("pending_run_id", None)
+
+    # Live Feed Display
+    live_feed_url = st.session_state.get("live_feed_url")
+    if live_feed_url:
+        st.markdown("""
+        <div class="status-badge">
+            <span class="status-indicator"></span>
+            <span>Live Execution</span>
+        </div>
+        """, unsafe_allow_html=True)
+        try:
+            st.markdown(
+                f"<div class='playback-container'><img src='{live_feed_url}' alt='Live execution feed' /></div>",
+                unsafe_allow_html=True,
+            )
+        except Exception as err:
+            st.warning(f"Live preview unavailable: {err}")
+
+    # Playback Results
+    playback = st.session_state.get("playback_result")
+    if playback:
+        status = playback.get("status")
+        run_id = playback.get("run_id", "automation")
+        mp4_base64 = playback.get("mp4_base64")
+        gif_base64 = playback.get("gif_base64")
+        
+        if status == "ok":
+            st.success("Automation executed successfully")
+        else:
+            st.warning("Automation completed with warnings")
+
+        if mp4_base64:
+            st.markdown("**Execution Recording**")
+            st.markdown(
+                f"<div class='playback-container'><video controls autoplay muted loop playsinline src='data:video/mp4;base64,{mp4_base64}'></video></div>",
+                unsafe_allow_html=True,
+            )
+            video_bytes = base64.b64decode(mp4_base64)
+            st.download_button(
+                "Download Video Recording",
+                video_bytes,
+                file_name=f"{run_id}.mp4",
+                mime="video/mp4",
+                key="download_playback_mp4",
+            )
+        elif gif_base64:
+            st.markdown("**Execution Recording**")
+            st.markdown(
+                f"<div class='playback-container'><img src='data:image/gif;base64,{gif_base64}' alt='Execution recording' /></div>",
+                unsafe_allow_html=True,
+            )
+            gif_bytes = base64.b64decode(gif_base64)
+            st.download_button(
+                "Download GIF Recording",
+                gif_bytes,
+                file_name=f"{run_id}.gif",
+                mime="image/gif",
+                key="download_playback_gif",
+            )
+        else:
+            st.info("No recording available. Verify Chrome installation.")
+
+
+        if playback.get("stdout"):
+            with st.expander("Execution Log"):
                 st.code(playback.get("stdout"), language="text")
 
-            if playback.get("stderr"):
-                st.markdown("**Errors & Logs**")
+        if playback.get("stderr"):
+            with st.expander("Error Log"):
                 st.code(playback.get("stderr"), language="text")
-            
-            st.session_state.pop("live_feed_url", None)
-            st.session_state.pop("pending_run_id", None)
-        else:
-            if not live_feed_url:
-                st.info("Click 'Run Full Pipeline' to execute and record automation.")
 
-        st.markdown("---")
-        st.markdown("**Static Validation Results**")
-        report = st.session_state.get("validation_report")
-        if report:
-            summary = report.get("summary", {})
-            passed = summary.get("passed_locators", 0)
-            total = summary.get("total_locators", 0)
-            failed = summary.get("failed_locators", 0)
-            skipped = summary.get("skipped_locators", 0)
+    # Validation Report
+    st.markdown("**Validation Report**")
+    report = st.session_state.get("validation_report")
+    if report:
+        summary = report.get("summary", {})
+        passed = summary.get("passed_locators", 0)
+        total = summary.get("total_locators", 0)
+        failed = summary.get("failed_locators", 0)
+        skipped = summary.get("skipped_locators", 0)
 
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("Passed", f"{passed}/{total}", delta=None)
-            with col2:
-                st.metric("Failed", failed, delta=None)
-            with col3:
-                st.metric("Skipped", skipped, delta=None)
-            with col4:
-                status_badge = "OK" if summary.get("overall_status") == "ok" else "Issues"
-                st.metric("Status", status_badge)
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Passed", f"{passed}/{total}")
+        with col2:
+            st.metric("Failed", failed)
+        with col3:
+            st.metric("Skipped", skipped)
+        with col4:
+            status_label = "Valid" if summary.get("overall_status") == "ok" else "Issues"
+            st.metric("Status", status_label)
 
-            locator_rows = report.get("locator_results", [])
-            if locator_rows:
-                st.markdown("**Locator Coverage**")
-                st.dataframe(
-                    locator_rows,
-                    width='stretch',
-                    hide_index=True,
-                    column_config={
-                        "by": "Strategy",
-                        "value": "Selector",
-                        "status": "Status",
-                        "lineno": "Line"
-                    }
-                )
+        locator_rows = report.get("locator_results", [])
+        if locator_rows:
+            st.markdown("**Locator Analysis**")
+            st.dataframe(
+                locator_rows,
+                width='stretch',
+                hide_index=True,
+                column_config={
+                    "by": "Strategy",
+                    "value": "Selector",
+                    "status": "Status",
+                    "lineno": "Line"
+                }
+            )
 
-            html_checks = report.get("html_checks", [])
-            if html_checks:
-                st.markdown("**Page Structure**")
-                check_table = []
-                for c in html_checks:
-                    check_table.append({
-                        "Component": c["check"],
-                        "Count": c["count"],
-                        "Status": "OK" if c["status"] == "ok" else "Warning",
-                        "Message": c["message"]
-                    })
-                st.dataframe(check_table, width='stretch', hide_index=True)
-
-            st.caption("Validation checks selector syntax & HTML element existence without running a browser.")
-        else:
-            st.info("Validation results will appear after running the pipeline.")
+        html_checks = report.get("html_checks", [])
+        if html_checks:
+            st.markdown("**Page Structure Checks**")
+            check_table = []
+            for c in html_checks:
+                check_table.append({
+                    "Component": c["check"],
+                    "Count": c["count"],
+                    "Status": "Valid" if c["status"] == "ok" else "Warning",
+                    "Details": c["message"]
+                })
+            st.dataframe(check_table, width='stretch', hide_index=True)
+    else:
+        st.info("Validation results will appear after pipeline execution")
 
 # ========================= FOOTER =========================
 st.markdown("---")
 st.markdown("""
-<div style="text-align: center; margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1)); border-radius: 16px; border: 1px solid rgba(96, 165, 250, 0.2); backdrop-filter: blur(8px);">
-    <h3 style="color: #f9fafb; margin-bottom: 0.5rem;">QA Agent</h3>
-    <p style="color: #cbd5e1; font-size: 0.95rem; margin: 0;">
-        Autonomous testing with AI • Grounded test generation • Real-time playback recording
-    </p>
-    <p style="color: #6b7280; font-size: 0.85rem; margin-top: 0.5rem;">Built for precision and efficiency</p>
+<div class="app-footer">
+    <div class="footer-title">QA Agent</div>
+    <div class="footer-description">
+        Intelligent test automation platform with document-grounded test generation and real-time validation
+    </div>
 </div>
 """, unsafe_allow_html=True)

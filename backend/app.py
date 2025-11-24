@@ -1,4 +1,6 @@
 import base64
+import json
+import re
 import os
 import shutil
 import subprocess
@@ -6,9 +8,12 @@ import sys
 import textwrap
 import time
 import uuid
+from io import BytesIO
 from typing import List
 
 import imageio
+import numpy as np
+from PIL import Image
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
@@ -19,6 +24,8 @@ from backend.agents.test_case_agent import TestGenerationAgent
 from backend.agents.selenium_agent import SeleniumAgent
 from backend.agents.ingestion_agent import IngestionAgent
 from backend.utils.script_validation import SeleniumScriptValidator, ScriptValidationError
+
+PLAYBACK_FPS = 2
 
 app = FastAPI(title="QA Agent Backend")
 
@@ -73,6 +80,7 @@ class RunSeleniumRequest(BaseModel):
     script: str
     html: str
     run_id: str | None = None
+    selected_ids: List[str] | None = None
 
 
 def _sanitize_script(script: str) -> str:
@@ -246,6 +254,9 @@ def run_selenium(req: RunSeleniumRequest):
         RecordingManager.configure(r"{run_dir_literal}")
         import os
         os.environ.setdefault("CHECKOUT_HTML_PATH", r"{html_path_literal}")
+        _case_labels = os.environ.get("QA_AGENT_CASE_LABELS")
+        if _case_labels:
+            RecordingManager.set_case_labels([_lbl.strip() for _lbl in _case_labels.split("||") if _lbl.strip()])
         """
     )
 
@@ -297,6 +308,8 @@ def run_selenium(req: RunSeleniumRequest):
     env = os.environ.copy()
     env["CHECKOUT_HTML_PATH"] = html_path
     env.setdefault("HEADLESS", "1")
+    if req.selected_ids:
+        env["QA_AGENT_CASE_LABELS"] = "||".join(req.selected_ids)
 
     creationflags = 0
     if sys.platform.startswith("win"):
@@ -316,20 +329,24 @@ def run_selenium(req: RunSeleniumRequest):
         raise HTTPException(status_code=504, detail="Selenium run timed out after 180 seconds") from exc
 
     video_path = os.path.join(run_dir, "playback.mp4")
-    video_b64 = None
-    if os.path.exists(video_path):
-        with open(video_path, "rb") as video_file:
-            video_b64 = base64.b64encode(video_file.read()).decode("ascii")
+    min_video_size = 8192
+    rebuilt = _build_mp4_from_frames(live_dir, video_path, fps=PLAYBACK_FPS)
+    video_b64 = _encode_file_base64(rebuilt or video_path, minimum_bytes=min_video_size)
 
     gif_path = os.path.join(run_dir, "playback.gif")
     gif_b64 = None
     try:
-        built_gif = _build_gif_from_frames(live_dir, gif_path)
+        built_gif = _build_gif_from_frames(live_dir, gif_path, fps=PLAYBACK_FPS)
         if built_gif and os.path.exists(built_gif):
             with open(built_gif, "rb") as gif_file:
                 gif_b64 = base64.b64encode(gif_file.read()).decode("ascii")
     except Exception:
         gif_b64 = None
+
+    segments_path = os.path.join(run_dir, "segments.json")
+    case_playbacks = _build_case_playbacks(live_dir, segments_path, run_dir)
+
+    frame_previews = _collect_frame_previews(live_dir)
 
     return {
         "run_id": run_id,
@@ -338,6 +355,8 @@ def run_selenium(req: RunSeleniumRequest):
         "stderr": result.stderr,
         "mp4_base64": video_b64,
         "gif_base64": gif_b64,
+        "frame_previews": frame_previews,
+        "case_playbacks": case_playbacks,
         "status": "ok" if result.returncode == 0 else "error",
     }
 
@@ -390,7 +409,7 @@ def live_feed(docs_path: str, run_id: str):
     return StreamingResponse(frame_iter(), media_type=f"multipart/x-mixed-replace; boundary={boundary}")
 
 
-def _build_gif_from_frames(frame_dir: str, output_path: str, fps: int = 4) -> str | None:
+def _build_gif_from_frames(frame_dir: str, output_path: str, fps: int = PLAYBACK_FPS) -> str | None:
     if not os.path.isdir(frame_dir):
         return None
     frame_files = sorted(f for f in os.listdir(frame_dir) if f.endswith(".jpg"))
@@ -411,6 +430,209 @@ def _build_gif_from_frames(frame_dir: str, output_path: str, fps: int = 4) -> st
     duration = max(0.05, 1.0 / max(fps, 1))
     imageio.mimsave(output_path, frames, format="GIF", duration=duration)
     return output_path
+
+
+def _build_mp4_from_frames(
+    frame_dir: str,
+    output_path: str,
+    fps: int = PLAYBACK_FPS,
+    frame_subset: list[str] | None = None,
+) -> str | None:
+    if not os.path.isdir(frame_dir):
+        return None
+    if frame_subset is not None:
+        frame_files = list(frame_subset)
+    else:
+        frame_files = sorted(f for f in os.listdir(frame_dir) if f.endswith(".jpg"))
+    if not frame_files:
+        return None
+
+    try:
+        if os.path.exists(output_path):
+            os.remove(output_path)
+    except Exception:
+        pass
+
+    writer = None
+    try:
+        writer = imageio.get_writer(
+            output_path,
+            fps=fps,
+            format="FFMPEG",
+            codec="libx264",
+            quality=8,
+            pixelformat="yuv420p",
+            macro_block_size=1,
+        )
+        for name in frame_files:
+            path = os.path.join(frame_dir, name)
+            try:
+                frame = imageio.imread(path)
+            except Exception:
+                continue
+            h, w = frame.shape[:2]
+            pad_h = h % 2
+            pad_w = w % 2
+            if pad_h or pad_w:
+                frame = np.pad(frame, ((0, pad_h), (0, pad_w), (0, 0)), mode="edge")
+            writer.append_data(frame)
+        writer.close()
+        return output_path
+    except Exception:
+        if writer:
+            try:
+                writer.close()
+            except Exception:
+                pass
+
+    try:
+        frames = []
+        for name in frame_files:
+            path = os.path.join(frame_dir, name)
+            try:
+                frames.append(imageio.imread(path))
+            except Exception:
+                continue
+        if frames:
+            imageio.mimsave(output_path, frames, format="MP4", fps=fps)
+            return output_path
+    except Exception:
+        return None
+
+    return output_path if os.path.exists(output_path) else None
+
+
+def _collect_frame_previews(frame_dir: str, total: int = 3, max_width: int = 720) -> list[str]:
+    if not os.path.isdir(frame_dir):
+        return []
+    frame_files = sorted(f for f in os.listdir(frame_dir) if f.endswith(".jpg"))
+    if not frame_files:
+        return []
+
+    indices = []
+    if len(frame_files) <= total:
+        indices = list(range(len(frame_files)))
+    else:
+        step = max(1, len(frame_files) // (total - 1)) if total > 1 else len(frame_files)
+        indices = [0]
+        cursor = step
+        while len(indices) < total - 1 and cursor < len(frame_files) - 1:
+            indices.append(cursor)
+            cursor += step
+        indices.append(len(frame_files) - 1)
+
+    previews: list[str] = []
+    for idx in indices:
+        name = frame_files[idx]
+        path = os.path.join(frame_dir, name)
+        try:
+            image = Image.open(path).convert("RGB")
+            image.thumbnail((max_width, max_width))
+            out = BytesIO()
+            image.save(out, format="JPEG", quality=85)
+            previews.append(base64.b64encode(out.getvalue()).decode("ascii"))
+            out.close()
+            image.close()
+        except Exception:
+            continue
+    return previews
+
+
+def _encode_file_base64(path: str | None, minimum_bytes: int = 1) -> str | None:
+    if not path or not os.path.isfile(path):
+        return None
+    try:
+        size = os.path.getsize(path)
+    except OSError:
+        return None
+    if size < max(minimum_bytes, 1):
+        return None
+    try:
+        with open(path, "rb") as fh:
+            return base64.b64encode(fh.read()).decode("ascii")
+    except Exception:
+        return None
+
+
+def _load_segments(path: str) -> list[dict]:
+    if not path or not os.path.isfile(path):
+        return []
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        if isinstance(data, list):
+            return data
+    except Exception:
+        return []
+    return []
+
+
+def _frame_number_from_name(name: str) -> int | None:
+    if not name or "frame_" not in name:
+        return None
+    stem = name.split("frame_")[-1]
+    stem = stem.split(".")[0]
+    try:
+        return int(stem)
+    except ValueError:
+        return None
+
+
+def _subset_frames(all_frames: list[str], start_frame: int, end_frame: int) -> list[str]:
+    if not all_frames or start_frame <= 0 or end_frame < start_frame:
+        return []
+    subset: list[str] = []
+    for name in all_frames:
+        idx = _frame_number_from_name(name)
+        if idx is None:
+            continue
+        if idx < start_frame:
+            continue
+        if idx > end_frame:
+            break
+        subset.append(name)
+    return subset
+
+
+def _slugify_label(value: str) -> str:
+    if not value:
+        return "case"
+    value = value.strip().lower()
+    value = re.sub(r"[^a-z0-9]+", "-", value)
+    value = re.sub(r"-+", "-", value).strip("-")
+    return value or "case"
+
+
+def _build_case_playbacks(frame_dir: str, segments_path: str, run_dir: str) -> list[dict]:
+    segments = _load_segments(segments_path)
+    if not segments:
+        return []
+    all_frames = sorted(f for f in os.listdir(frame_dir) if f.endswith(".jpg")) if os.path.isdir(frame_dir) else []
+    if not all_frames:
+        return []
+    playbacks: list[dict] = []
+    for idx, seg in enumerate(segments):
+        start = int(seg.get("start_frame") or 0)
+        end = int(seg.get("end_frame") or 0)
+        if start <= 0 or end < start:
+            continue
+        frame_subset = _subset_frames(all_frames, start, end)
+        if not frame_subset:
+            continue
+        label = seg.get("label") or f"Case {idx + 1}"
+        safe_label = _slugify_label(label)
+        output_path = os.path.join(run_dir, f"{safe_label}_playback.mp4")
+        built = _build_mp4_from_frames(frame_dir, output_path, fps=PLAYBACK_FPS, frame_subset=frame_subset)
+        media_b64 = _encode_file_base64(built, minimum_bytes=2048)
+        if not media_b64:
+            continue
+        playbacks.append({
+            "label": label,
+            "start_frame": start,
+            "end_frame": end,
+            "mp4_base64": media_b64,
+        })
+    return playbacks
 
 if __name__ == "__main__":
     uvicorn.run("backend.app:app", host="0.0.0.0", port=8000, reload=True)
