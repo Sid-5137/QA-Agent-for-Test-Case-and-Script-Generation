@@ -1,0 +1,44 @@
+{
+    "POST /apply_coupon": {
+        "description": "Validate and apply a discount coupon",
+        "request_body": {
+            "code": "string"
+        },
+        "response": {
+            "valid": "boolean",
+            "discount_percent": "number",
+            "message": "string"
+        }
+    },
+
+    "POST /calculate_total": {
+        "description": "Calculate the order total including items, shipping, and discount",
+        "request_body": {
+            "items": "array of {item_id: number, quantity: number}",
+            "shipping_method": "string",
+            "coupon_code": "string (optional)"
+        },
+        "response": {
+            "subtotal": "number",
+            "shipping": "number",
+            "discount": "number",
+            "total": "number"
+        }
+    },
+
+    "POST /submit_order": {
+        "description": "Submit the final order after validation",
+        "request_body": {
+            "name": "string",
+            "email": "string",
+            "address": "string",
+            "payment_method": "string",
+            "total_amount": "number"
+        },
+        "response": {
+            "success": "boolean",
+            "order_id": "string",
+            "message": "string"
+        }
+    }
+}

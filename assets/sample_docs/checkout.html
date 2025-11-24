@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Checkout — Premium Hybrid</title>
+<style>
+:root{--bg:#f3f6fb;--card:#fff;--muted:#6b7280;--text:#0f172a;--accent:#5b6cf6;--accent2:#06b6d4;--success:#10b981;--danger:#ef4444}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,#eff5ff 0%,#f7fbff 100%);font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:var(--text);-webkit-font-smoothing:antialiased}
+.app{max-width:1100px;margin:26px auto;padding:18px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#4f46e5);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;box-shadow:0 8px 30px rgba(91,108,246,0.18)}
+.title h1{margin:0;font-size:20px;font-weight:800}
+.title p{margin:0;color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 380px;gap:18px;align-items:start}
+.panel{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 10px 26px rgba(2,6,23,0.06);border:1px solid rgba(15,23,42,0.03)}
+.products{display:flex;flex-direction:column;gap:10px}
+.product{display:flex;gap:12px;align-items:center;padding:10px;border-radius:10px;border:1px solid rgba(15,23,42,0.03);transition:all .16s}
+.product:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(15,23,42,0.04)}
+.thumb{width:72px;height:56px;background:linear-gradient(135deg,#eef2ff,#fff);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent)}
+.prod-meta h3{margin:0;font-size:15px;font-weight:700}
+.prod-meta p{margin:4px 0 0;color:var(--muted);font-size:13px}
+.prod-actions{display:flex;gap:8px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(90deg,var(--accent),#4f46e5);color:#fff;border:none;padding:8px 12px;border-radius:8px;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(79,70,229,0.15);transition:transform .12s}
+.btn.secondary{background:transparent;color:var(--accent);border:1px solid rgba(91,108,246,0.12);box-shadow:none}
+.btn:active{transform:translateY(1px) scale(.995)}
+input[type="number"],input[type="text"]{padding:10px 12px;border-radius:8px;border:1px solid #e6eef8;font-size:14px}
+input:focus{border-color:var(--accent);box-shadow:0 6px 20px rgba(91,108,246,0.08);outline:none}
+.label{font-weight:700;color:var(--muted);font-size:13px;margin-bottom:6px;display:block}
+.small{font-size:13px;color:var(--muted)}
+.checkout{position:sticky;top:22px}
+.summary{background:linear-gradient(180deg,rgba(255,255,255,0.95),rgba(255,255,255,0.95));padding:14px;border-radius:10px;border:1px solid rgba(15,23,42,0.04)}
+.row{display:flex;justify-content:space-between;align-items:center;margin:8px 0}
+.total{font-weight:900;font-size:18px}
+.radio{display:flex;gap:8px;align-items:center;padding:8px;border-radius:10px;border:1px solid rgba(15,23,42,0.03);margin-top:8px;cursor:pointer}
+.coupon{display:flex;gap:8px;margin-top:10px}
+.coupon input{flex:1}
+.toast{position:fixed;right:18px;bottom:18px;background:linear-gradient(90deg,#0ea5e9,#6366f1);color:#fff;padding:10px 12px;border-radius:10px;box-shadow:0 8px 24px rgba(37,99,235,0.15);display:flex;align-items:center;gap:8px;z-index:2000;animation:toastIn .35s forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* modal centered */
+.modal-backdrop{position:fixed;inset:0;background:rgba(6,8,20,0.45);backdrop-filter:blur(10px) saturate(120%);display:flex;align-items:center;justify-content:center;z-index:5000;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-backdrop.active{opacity:1;pointer-events:auto}
+.modal{width:92%;max-width:640px;background:linear-gradient(180deg,#fff,#fbfdff);border-radius:16px;padding:32px;box-shadow:0 30px 80px rgba(0,0,0,0.38);text-align:center;position:relative;overflow:hidden;transform:scale(.96);transition:transform .28s}
+.modal-backdrop.active .modal{transform:scale(1)}
+.modal h2{margin:0;font-size:26px}
+.modal p{color:var(--muted);margin-top:10px;margin-bottom:14px}
+canvas.confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.balloon{position:absolute;width:56px;height:72px;border-radius:60% 60% 60% 60%;bottom:-160px;opacity:0;transform-origin:center bottom;z-index:2}
+.balloon.red{background:radial-gradient(circle at 30% 30%,#ff8a8a,#ef4444);left:8%}
+.balloon.yellow{background:radial-gradient(circle at 30% 30%,#ffd87a,#f59e0b);left:30%}
+.balloon.teal{background:radial-gradient(circle at 30% 30%,#9ff3ea,#06b6d4);left:52%}
+.balloon.purple{background:radial-gradient(circle at 30% 30%,#d1c7ff,#7c3aed);left:74%}
+.balloon.fly{animation:rise 2200ms cubic-bezier(.18,.9,.2,1) forwards,sway 2000ms infinite}
+@keyframes rise{0%{transform:translateY(0) scale(.9);opacity:1}60%{opacity:1}100%{transform:translateY(-420px) scale(1);opacity:0}}
+@keyframes sway{0%{transform:translateX(0)}50%{transform:translateX(6px)}100%{transform:translateX(0)}}
+.selenium-highlight{outline:3px solid rgba(91,108,246,0.9);box-shadow:0 8px 22px rgba(91,108,246,0.18);border-radius:10px;transition:box-shadow .2s}
+@media(max-width:980px){.grid{grid-template-columns:1fr}.checkout{position:relative;top:0}}
+.pulse{animation:pulseBtn .36s}
+@keyframes pulseBtn{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+.input-card{background:#fff;padding:12px;border-radius:10px;border:1px solid rgba(15,23,42,0.03);margin-top:12px;box-shadow:0 6px 18px rgba(15,23,42,0.04)}
+.input-label{display:block;font-size:14px;font-weight:700;color:#475569;margin-bottom:6px}
+.input-error{display:none;color:var(--danger);font-weight:700;margin-top:6px;font-size:13px}
+.radio-option{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px;font-weight:600;color:#334155}
+</style>
+</head><body>
+<div class="app">
+  <div class="header">
+    <div class="brand"><div class="logo">E•S</div>
+      <div class="title"><h1>E-Shop Checkout</h1><p class="small muted">Premium UI • Selenium-friendly</p></div>
+    </div>
+    <div class="small muted">Secure • Demo</div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h2>Products</h2>
+        <div class="products" id="products_list">
+          <div class="product" data-id="1"><div class="thumb">P1</div>
+            <div class="prod-meta"><h3>Item 1</h3><p class="muted">200g — Great value</p><div class="small" style="margin-top:6px">Price: <strong>$20</strong></div></div>
+            <div class="prod-actions"><button id="add_item1" class="btn" onclick="addItem1()">Add to Cart</button></div>
+          </div>
+          <div class="product" data-id="2"><div class="thumb">P2</div>
+            <div class="prod-meta"><h3>Item 2</h3><p class="muted">450ml — Premium</p><div class="small" style="margin-top:6px">Price: <strong>$35</strong></div></div>
+            <div class="prod-actions"><button id="add_item2" class="btn" onclick="addItem2()">Add to Cart</button></div>
+          </div>
+          <div class="product" data-id="3"><div class="thumb">P3</div>
+            <div class="prod-meta"><h3>Item 3</h3><p class="muted">1-year warranty</p><div class="small" style="margin-top:6px">Price: <strong>$65</strong></div></div>
+            <div class="prod-actions"><button id="add_item3" class="btn" onclick="addItem3()">Add to Cart</button></div>
+          </div>
+        </div>
+
+        <hr style="border:none;height:1px;background:#eef2ff;margin:16px 0"/>
+
+        <h2>Cart Summary</h2>
+        <label class="label">Item 1 Quantity:</label><input id="qty_item1" type="number" value="0" min="0" onchange="updateTotal()">
+        <label class="label">Item 2 Quantity:</label><input id="qty_item2" type="number" value="0" min="0" onchange="updateTotal()">
+        <label class="label">Item 3 Quantity:</label><input id="qty_item3" type="number" value="0" min="0" onchange="updateTotal()">
+
+        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center"><div class="muted">Subtotal</div><div id="subtotal" class="total">$0.00</div></div>
+        <div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center"><div class="muted">Estimated total</div><div id="cart_total" class="total">$0.00</div></div>
+      </div>
+    </div>
+
+    <aside class="checkout">
+      <div class="panel summary">
+        <h2>Checkout</h2><div class="small muted">Complete your purchase</div>
+        <hr style="border:none;height:1px;background:#eef2ff;margin:12px 0"/>
+        <div>
+          <div class="label">Shipping Method</div>
+          <label class="radio"><input type="radio" id="ship_standard" name="shipping_method" value="standard" onclick="updateTotal()"> Standard ($5)</label>
+          <label class="radio"><input type="radio" id="ship_express" name="shipping_method" value="express" onclick="updateTotal()"> Express ($15)</label>
+        </div>
+
+        <div style="margin-top:12px"><div class="label">Discount Code</div>
+          <div class="coupon"><input type="text" id="discount_code" placeholder="e.g. SAVE15"/><button id="apply_coupon" class="btn secondary" onclick="applyCoupon()">Apply</button></div>
+          <div id="coupon_message" class="small" style="margin-top:8px;font-weight:700"></div>
+        </div>
+
+        <hr style="border:none;height:1px;background:#eef2ff;margin:12px 0"/>
+
+        <!-- Cleaned Your Details -->
+        <div>
+          <h3 style="margin:0 0 6px 0">Your Details</h3><p class="small muted" style="margin-top:-4px">We'll use this to process your order</p>
+          <form id="checkout_form" onsubmit="return validateForm()">
+            <div class="input-card"><label class="input-label" for="fullname">Full Name *</label><input type="text" id="fullname" placeholder="John Doe"/><p id="name_error" class="input-error">Name is required</p></div>
+            <div class="input-card"><label class="input-label" for="email">Email Address *</label><input type="text" id="email" placeholder="john@example.com"/><p id="email_error" class="input-error">Invalid email address</p></div>
+            <div class="input-card"><label class="input-label" for="address">Shipping Address *</label><input type="text" id="address" placeholder="123 Main St, City"/><p id="address_error" class="input-error">Address is required</p></div>
+            <div class="input-card"><label class="input-label">Payment Method *</label>
+              <div class="radio-option"><input type="radio" id="pay_credit" name="payment_method" value="credit"><label for="pay_credit">Credit Card</label></div>
+              <div class="radio-option"><input type="radio" id="pay_paypal" name="payment_method" value="paypal"><label for="pay_paypal">PayPal</label></div>
+              <p id="payment_error" class="input-error">Payment method required</p></div>
+
+            <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center"><div class="muted">Final Amount</div><div id="cart_total_copy" class="total">$0.00</div></div>
+
+            <div style="margin-top:12px;display:flex;gap:10px"><button id="pay_now" class="btn" type="submit">Pay Now</button><button type="button" class="btn secondary" onclick="highlightElement('cart_total')">Highlight Total</button></div>
+            <p id="payment_success" style="display:none;margin-top:10px;font-weight:800;color:var(--success)">Payment Successful!</p>
+          </form>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- Centered modal -->
+<div id="celebration_modal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal_title" aria-describedby="modal_message">
+    <canvas id="confetti_canvas" class="confetti"></canvas>
+    <div id="balloon1" class="balloon red"></div>
+    <div id="balloon2" class="balloon yellow"></div>
+    <div id="balloon3" class="balloon teal"></div>
+    <div id="balloon4" class="balloon purple"></div>
+    <div style="position:relative;z-index:3">
+      <h2 id="modal_title">🎉 Success</h2>
+      <p id="modal_message">Your action was completed successfully.</p>
+      <div style="display:flex;justify-content:center;gap:12px;margin-top:16px">
+        <button class="btn" onclick="closeCelebration()">Continue</button>
+        <button class="btn secondary" onclick="downloadReceiptDemo()">Download Receipt</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast_root" aria-hidden="true"></div>
+
+<script>
+/* Toast */
+function showToast(text){const r=document.getElementById('toast_root');const t=document.createElement('div');t.className='toast';t.innerHTML='<strong style="font-weight:800;margin-right:8px">Notice</strong><div style="opacity:0.95">'+text+'</div>';r.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(10px)';setTimeout(()=>t.remove(),420)},2500)}
+
+/* highlight for selenium */
+function highlightElement(id){const el=document.getElementById(id);if(!el) return;el.classList.add('selenium-highlight');setTimeout(()=>el.classList.remove('selenium-highlight'),700)}
+
+/* confetti canvas */
+function runConfetti(){const canvas=document.getElementById('confetti_canvas');if(!canvas) return;const ctx=canvas.getContext('2d');canvas.width=canvas.clientWidth*devicePixelRatio;canvas.height=canvas.clientHeight*devicePixelRatio;ctx.scale(devicePixelRatio,devicePixelRatio);const W=canvas.clientWidth,H=canvas.clientHeight;const pieces=[];const colors=['#f97316','#fb7185','#60a5fa','#34d399','#facc15','#a78bfa'];for(let i=0;i<140;i++){pieces.push({x:Math.random()*W,y:Math.random()*H-H,w:6+Math.random()*8,h:10+Math.random()*12,color:colors[Math.floor(Math.random()*colors.length)],rot:Math.random()*360,speed:2+Math.random()*4,swing:Math.random()*2-1})}let raf;function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);for(let p of pieces){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();p.y+=p.speed;p.x+=Math.sin(p.y/20+p.swing)*1.6;p.rot+=6;if(p.y>H+50){p.y=-40-Math.random()*H;p.x=Math.random()*W}}raf=requestAnimationFrame(draw)}draw();setTimeout(()=>{cancelAnimationFrame(raf);ctx.clearRect(0,0,canvas.width,canvas.height)},3200)}
+
+/* balloons */
+function popBalloons(){['balloon1','balloon2','balloon3','balloon4'].forEach((id,i)=>{const b=document.getElementById(id);if(!b) return;setTimeout(()=>{b.classList.add('fly');setTimeout(()=>b.classList.remove('fly'),2600)},120*i)})}
+
+/* modal */
+function showCelebration(title,message){const t=document.getElementById('modal_title'),m=document.getElementById('modal_message');if(title) t.innerText=title;if(message) m.innerText=message;const modal=document.getElementById('celebration_modal');modal.classList.add('active');modal.setAttribute('aria-hidden','false');runConfetti();popBalloons()}
+function closeCelebration(){const modal=document.getElementById('celebration_modal');modal.classList.remove('active');modal.setAttribute('aria-hidden','true')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeCelebration()})
+document.getElementById('celebration_modal').addEventListener('click',e=>{if(e.target===document.getElementById('celebration_modal')) closeCelebration()})
+function downloadReceiptDemo(){const blob=new Blob(["Order Receipt\nOrder ID: DEMO-"+Math.floor(Math.random()*999999)+"\nThank you!"],{type:'text/plain'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='receipt.txt';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
+
+/* original logic (IDs preserved) */
+const SHIPPING_STANDARD=5,SHIPPING_EXPRESS=15;
+function addItem1(){let q1=parseInt(document.getElementById("qty_item1").value)||0;document.getElementById("qty_item1").value=q1+1;document.getElementById("add_item1").classList.add("pulse");setTimeout(()=>document.getElementById("add_item1").classList.remove("pulse"),260);updateTotal();showToast("Added Item 1 to cart")}
+function addItem2(){let q2=parseInt(document.getElementById("qty_item2").value)||0;document.getElementById("qty_item2").value=q2+1;document.getElementById("add_item2").classList.add("pulse");setTimeout(()=>document.getElementById("add_item2").classList.remove("pulse"),260);updateTotal();showToast("Added Item 2 to cart")}
+function addItem3(){let q3=parseInt(document.getElementById("qty_item3").value)||0;document.getElementById("qty_item3").value=q3+1;document.getElementById("add_item3").classList.add("pulse");setTimeout(()=>document.getElementById("add_item3").classList.remove("pulse"),260);updateTotal();showToast("Added Item 3 to cart")}
+
+function updateTotal(){let price1=20,price2=35,price3=65;let q1=parseInt(document.getElementById("qty_item1").value)||0,q2=parseInt(document.getElementById("qty_item2").value)||0,q3=parseInt(document.getElementById("qty_item3").value)||0;let subtotal=price1*q1+price2*q2+price3*q3;let shippingMethod=document.querySelector('input[name="shipping_method"]:checked');let shippingCost=0;if(shippingMethod){if(shippingMethod.value==="standard") shippingCost=SHIPPING_STANDARD;if(shippingMethod.value==="express") shippingCost=SHIPPING_EXPRESS}let discountField=document.getElementById("discount_code").value.trim();let total=subtotal+shippingCost;if(discountField==="SAVE15") total*=0.85;document.getElementById("subtotal").innerText="$"+subtotal.toFixed(2);document.getElementById("cart_total").innerText="$"+total.toFixed(2);document.getElementById("cart_total_copy").innerText="$"+total.toFixed(2)}
+
+function applyCoupon(){let code=document.getElementById("discount_code").value.trim();if(code==="SAVE15"){document.getElementById("coupon_message").innerText="15% discount applied!";document.getElementById("coupon_message").style.color="green";showToast("Coupon applied: SAVE15 (15% off)");showCelebration("Coupon Applied","15% discount applied to your cart — nice!")}else{document.getElementById("coupon_message").innerText="Invalid coupon code";document.getElementById("coupon_message").style.color="red";showToast("Invalid coupon code")}updateTotal()}
+
+function validateForm(){let isValid=true;document.getElementById("payment_success").style.display="none";document.getElementById("name_error").style.display="none";document.getElementById("email_error").style.display="none";document.getElementById("address_error").style.display="none";document.getElementById("payment_error").style.display="none";let name=document.getElementById("fullname").value.trim();if(!name){document.getElementById("name_error").style.display="block";isValid=false}let email=document.getElementById("email").value.trim();const emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;if(!email||!emailPattern.test(email)){document.getElementById("email_error").style.display="block";isValid=false}let address=document.getElementById("address").value.trim();if(!address){document.getElementById("address_error").style.display="block";isValid=false}let paymentChecked=document.querySelector('input[name="payment_method"]:checked');if(!paymentChecked){document.getElementById("payment_error").style.display="block";isValid=false}if(isValid){document.getElementById("payment_success").style.display="block";document.getElementById("payment_success").classList.add("pulse");showCelebration("Order Confirmed","Thank you — your payment succeeded and your order is processing.");showToast("Payment succeeded — order confirmed");highlightElement('pay_now')}return false}
+window.addEventListener('load',()=>{updateTotal()})
+</script></body></html>

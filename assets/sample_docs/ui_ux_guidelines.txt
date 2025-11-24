@@ -1,0 +1,30 @@
+1. All form validation errors must be displayed in red.
+2. All success messages must be displayed in green.
+3. The cart total must always be clearly visible on the page.
+4. The "Pay Now" button must only submit when all validations pass successfully.
+5. Error messages must appear directly below the associated input field.
+6. The checkout process must be simple, linear, and top-to-bottom.
+7. Discount code validation messages must appear directly under the discount field.
+8. A valid discount code should trigger a success message, confetti, and the celebration modal.
+9. An invalid discount code should trigger a red error message and a toast notification.
+10. Input fields must be grouped cleanly with visible labels placed above each input.
+11. The payment method options must be shown clearly using radio buttons with proper spacing.
+12. The final amount must also appear inside the checkout form for clarity.
+13. The success celebration modal must appear centered with blurred background.
+14. Confetti and balloon animations must trigger on successful payment and valid discount code.
+15. The modal must disable page scrolling and take focus.
+16. All interactive elements should provide visual feedback (highlight, pulse, etc.).
+17. The UI layout must remain responsive and readable on mobile screens.
+18. Error states must stop form submission until corrected.
+19. All visual hierarchy must be clear (headings bold, totals emphasized, labels small).
+20. The checkout flow must not require unnecessary navigation or steps.
+21. Radio buttons, inputs, and buttons must have consistent rounded corners and shadows.
+22. Buttons must use clear accent colors, hover effects, and smooth transitions.
+23. Input borders must become highlighted on focus.
+24. The design must follow a clean and minimal layout with section spacing.
+25. All IDs must remain static and predictable for Selenium automation.
+26. Selenium interactions must have visible effects (pulse, highlight, messages).
+27. Animations should not block or overlap clickable elements.
+28. Invalid fields should only highlight the specific input, not the entire form.
+29. All values (subtotal, shipping, discount, total) must update instantly.
+30. The entire flow should be intuitive without requiring instructions.

@@ -17,6 +17,6 @@ uv.lock
 .env
 
 # Folders
-assets/
+# assets/
 uploads/
 vector_db/
