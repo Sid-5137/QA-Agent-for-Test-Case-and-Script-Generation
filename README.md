@@ -84,8 +84,6 @@ Each Streamlit step already appears in the UI; use the placeholder references be
 - _Screenshot:_ ![Step 5 – Automation](docs/image-4.png "Automation playback step")
 - _Recording:_ <video src="docs/exec.mp4" controls title="Automation playback"></video>
 
-> **Note:** Ensure `image.png`, `image-1.png`, `image-2.png`, `image-3.png`, `image-4.png`, and `exec.mp4` live alongside the README (or adjust paths accordingly) so GitHub can render them.
-
 ### CLI-Friendly Quickstart
 ```bash
 # terminal 1 – backend
