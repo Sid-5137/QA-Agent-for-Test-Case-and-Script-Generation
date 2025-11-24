@@ -80,23 +80,8 @@ Each Streamlit step already appears in the UI; use the placeholder references be
 
 ### 5. Validate & Execute Automation
 - **Validate** runs static locator checks against `checkout.html`.
-- **Execute** launches Selenium + ChromeDriver, shows a live feed, and captures MP4/GIF playback.
+- **Execute** launches Selenium + ChromeDriver, shows a live feed, and captures MP4/GIF playback. (For verification check `docs/exec.mp4`)
 - _Screenshot:_ ![Step 5 – Automation](docs/image-4.png "Automation playback step")
-- _Recording:_ <video src="docs/exec.mp4" controls title="Automation playback"></video>
-
-### CLI-Friendly Quickstart
-```bash
-# terminal 1 – backend
-uvicorn backend.app:app --host 0.0.0.0 --port 8000 --reload
-
-# terminal 2 – frontend
-streamlit run frontend/streamlit_app.py
-
-# browser – follow steps 1-5 using the placeholders above
-```
-
-> **Tip:** Keep the sample docs (`assets/sample_docs/`) handy so you can always demo the workflow even without proprietary assets.
-
 ---
 
 ## Included Support Documents
