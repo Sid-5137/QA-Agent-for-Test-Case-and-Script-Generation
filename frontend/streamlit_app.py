@@ -7,6 +7,10 @@ import requests
 import streamlit as st
 
 API = os.getenv("API_ENDPOINT", "http://localhost:8000")
+HTML_FETCH_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0 Safari/537.36",
+    "Accept-Language": "en-US,en;q=0.9",
+}
 
 st.set_page_config(
     page_title="QA Agent",
@@ -756,7 +760,7 @@ if st.button("Process Files", type="primary"):
         html_url_value = (html_url or "").strip()
         if html_url_value:
             try:
-                resp = requests.get(html_url_value, timeout=20)
+                resp = requests.get(html_url_value, timeout=20, headers=HTML_FETCH_HEADERS)
                 resp.raise_for_status()
                 html_bytes = resp.content
                 html_src = resp.text
